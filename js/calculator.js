@@ -1,0 +1,1 @@
+const calculator = new CalculatorController();
