@@ -98,6 +98,9 @@ class CalculatorController {
       case 'ponto':
         this.addOperation('.');
         break;
+      case 'igual':
+        this.addOperationResult();
+        break;
       
       case '0':
       case '1':
@@ -118,8 +121,10 @@ class CalculatorController {
     }
   }
 
+  // applying logic to insert number or operation
+
   clearAll() {
-    this._operation = [0];
+    this.display = this._operation = [0];
   }
 
   clearEntry() {
@@ -139,41 +144,42 @@ class CalculatorController {
   }
   
   concatString(value) {
-    this._operation[this._operation.length - 1] = this._operation[this._operation.length - 1].toString() + value.toString();
+    this._operation[this._operation.length - 1] =  value;
+  }
+  pushInOperation(value) {
+    this._operation.push(value);
+    console.log(this._operation);
+    if(this._operation.length > 3) {
+      let lastValue = this._operation.pop();
+      let auxEval = eval(this._operation.join(''));
+      this._operation = [auxEval, lastValue];
+    }
   }
 
+  setDisPlayCalculator() {
+    this.display = this._operation.join('');
+  }
   
   addOperation(value) {
     if(isNaN(value)){
       if(isNaN(this.getLastOperation())) {
-        console.log("Valor passado é String");
-        console.log("Valor anterior é String");
-        console.log("Vou concatenar o valor anterior")
         this.concatString(value);
+        console.log(this._operation);
       } else {
-        console.log("Valor passado é String");
-        console.log("Valor anterior é Number");
-        console.log("Vou utilizar o metodo Push!");
-        this._operation.push(value);
+        this.pushInOperation(value);
         console.log(this._operation);
       }
     } else {
       if(isNaN(this.getLastOperation())) {
-        console.log("Valor passado é Number");
-        console.log("Valor anterior é String");
-        console.log("Vou utilizar o metodo Push!");
-        this._operation.push(value);
+        this.pushInOperation(value);
         console.log(this._operation);
       } else {
-        console.log("Valor passado é Number");
-        console.log("Valor anterior é Number");
-        console.log("Vou concatenar o valor anterior");
         this.concatNumber(value);
         console.log(this._operation);
       }
     }
+    this.setDisPlayCalculator();
   }
-  
 }
 
 
