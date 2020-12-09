@@ -13,6 +13,7 @@ class CalculatorController {
   initializeDisplay() {
     this.setDisplay();
     setInterval(() => this.setDisplay(), 1000);
+    this.pasteFromClipboard();
   }
 
   setDisplay() {
@@ -48,6 +49,32 @@ class CalculatorController {
     this._date.innerHTML = value;
   }
 
+  // copy display
+
+  copyToClipboard() {
+    console.log("Entrou no ctrl + c");
+    let input = document.createElement('input');
+    
+    input.value = this.display.innerHTML;
+
+    document.body.appendChild(input);
+
+    input.select();
+
+    document.execCommand('copy');
+
+    input.remove();
+  }
+
+  // paste display
+
+  pasteFromClipboard() {
+    document.addEventListener('paste', (event) => {
+      let text = event.clipboardData.getData('text');
+      this.addOperation(+(text));
+    });
+  }
+
   // adding click event on the buttons
 
   initializeButtons() {
@@ -75,7 +102,7 @@ class CalculatorController {
 
   initializeKeyBord() {
     document.addEventListener('keyup', (event) => {
-      console.log(event.key);
+      console.log(event);
       switch (event.key) {
         case 'Escape':
           this.clearAll();
@@ -113,6 +140,10 @@ class CalculatorController {
         case '8':
         case '9':
           this.addOperation(+event.key);
+          break;
+
+        case 'c':
+          if(event.ctrlKey) this.copyToClipboard();
           break;
       }   
     })
@@ -244,6 +275,11 @@ class CalculatorController {
   }
 
   setDisPlayCalculator() {
+    if(this._operation.join('').length > 10) {
+      this.display = 'Not Support';
+      return false;
+    }
+    
     this.display = this._operation.join('');
   }
   
