@@ -7,6 +7,7 @@ class CalculatorController {
     this._date = document.querySelector('#data');
     this.initializeDisplay();
     this.initializeButtons();
+    this.initializeKeyBord();
   }
 
   initializeDisplay() {
@@ -70,6 +71,53 @@ class CalculatorController {
     })
   }
 
+  // adding event for keybord
+
+  initializeKeyBord() {
+    document.addEventListener('keyup', (event) => {
+      console.log(event.key);
+      switch (event.key) {
+        case 'Escape':
+          this.clearAll();
+          break;
+        case 'Backspace':
+          this.clearEntry();
+          break;
+
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '%':
+          this.addOperation(event.key);
+          break;
+
+        case '.':
+        case ',':
+          this.addDot();
+          break;
+          
+        case '=':
+        case 'Enter':
+          this.operationResult();
+          break;
+        
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          this.addOperation(+event.key);
+          break;
+      }   
+    })
+  }
+
   // switch case logic
 
   optionExecuted(value){
@@ -96,10 +144,10 @@ class CalculatorController {
         this.addOperation('%');
         break;
       case 'ponto':
-        this.addOperation('.');
+        this.addDot();
         break;
       case 'igual':
-        this.addOperationResult();
+        this.operationResult();
         break;
       
       case '0':
@@ -129,16 +177,33 @@ class CalculatorController {
 
   clearEntry() {
     this._operation.pop();
+    if(this._operation.length == 0)
+      this._operation.push(0);
+    this.display = this._operation.join('');
+    console.log(this._operation);
   }
 
+  operationResult() {
+  if(this._operation.length >= 3) {
+    let result;
+    if(this._operation.includes('%')){
+      result = this._operation[2] * this._operation[0] / 100;
+    } else {
+      result = eval(this._operation.join(''));
+    }
+    this._operation = [result];
+    }
+    this.setDisPlayCalculator(); 
+  }
+  
   setError() {
     this.displayCalc = 'Error';
   }
-
+  
   getLastOperation() {
     return this._operation[this._operation.length - 1];
   }
-
+  
   concatNumber(value) {
     this._operation[this._operation.length - 1] = +(this._operation[this._operation.length - 1].toString() + value.toString());
   }
@@ -148,11 +213,33 @@ class CalculatorController {
   }
   pushInOperation(value) {
     this._operation.push(value);
-    console.log(this._operation);
+    //console.log(this._operation);
+    this.calc();
+  }
+  
+  addDot() {
+
+    let validDot = this.getLastOperation().toString().includes('.');
+
+    if(!isNaN(this.getLastOperation()) && !validDot) {
+      this._operation[this._operation.length - 1] = this.getLastOperation().toString() + ".";
+      console.log(this._operation);
+    }
+
+    this.setDisPlayCalculator();
+  }
+
+  calc() {
     if(this._operation.length > 3) {
       let lastValue = this._operation.pop();
-      let auxEval = eval(this._operation.join(''));
-      this._operation = [auxEval, lastValue];
+      let result;
+
+      if(this._operation.includes('%')){
+        result = this._operation[2] * this._operation[0] / 100
+      } else {
+        result = eval(this._operation.join(''));
+      }
+      this._operation = [result, lastValue];
     }
   }
 
@@ -162,6 +249,7 @@ class CalculatorController {
   
   addOperation(value) {
     if(isNaN(value)){
+      console.log('String: ' + value);
       if(isNaN(this.getLastOperation())) {
         this.concatString(value);
         console.log(this._operation);
@@ -170,83 +258,20 @@ class CalculatorController {
         console.log(this._operation);
       }
     } else {
+      console.log('Number: ' + value);
       if(isNaN(this.getLastOperation())) {
         this.pushInOperation(value);
         console.log(this._operation);
       } else {
-        this.concatNumber(value);
-        console.log(this._operation);
+        if(this.getLastOperation().toString().includes('.') && value === 0) {
+          this._operation[this._operation.length - 1] = this._operation[this._operation.length - 1].toString() + value.toString();
+          console.log(this._operation);
+        } else {
+          this.concatNumber(value);
+          console.log(this._operation);
+        }
       }
     }
     this.setDisPlayCalculator();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // addOperation(value) {
-  //   if(isNaN(value)) {
-  //     // Value is a string
-  //     if(!isNaN(this.getLastOperation)){
-  //       // The last value is number
-  //       this._operation.push(value);
-  //       console.log(this._operation);
-  //     } else {
-  //       // The last value is string
-  //       this.concatString(value);
-  //       console.log(this._operation);
-  //     }
-  //   } else {
-  //     // Value is a number
-  //     if(!isNaN(this.getLastOperation)){
-  //       // The last value is number
-  //       this.concatNumber(value);
-  //       console.log(this._operation);
-  //     } else {
-  //       // The last value is string
-  //       this._operation.push(value);
-  //       console.log(this._operation);
-  //     }
-  //   }
-  // }
